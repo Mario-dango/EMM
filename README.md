@@ -12,7 +12,7 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [Baterías 18650](#Baterías-18650)
   - [BH1750](#BH1750)
   - [MQ-135](#MQ-135)
-  - [STEP-DOWN](#Módulo.Step-Down (MP2307))
+  - [STEP-DOWN](#módulo-step-down-mp2307)
   - [STEP-UP](#Módulo.Step-UP (MT3608-USB))
     
 ### ESP8266
