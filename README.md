@@ -13,7 +13,7 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [BH1750](#BH1750)
   - [MQ-135](#MQ-135)
   - [Step-Down](#módulo-step-down-mp2307)
-  - [Step-UP](#Módulo.Step-UP (MT3608-USB))
+  - [Step-UP](#módulo-step-up-mt3608-usb)
     
 ### ESP8266
 #### WeMos Mini D1 (ESP8266)
