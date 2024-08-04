@@ -6,7 +6,7 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
 ## Los modulos incorporados
 
   - [ESP8266](#ESP8266)
-  - [BMP180](#BMP180)
+  - [BMP280](#BMP280)
   - [DHT22](#DHT22)
   - [BMS 2S](#BMS-2S)
   - [Baterías 18650](#Baterías-18650)
