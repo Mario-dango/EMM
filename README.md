@@ -10,12 +10,8 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [DHT22](#DHT22)
   - [BMS 2S](#BMS-2S)
   - [Baterías 18650](#Baterías-18650)
-  - [Panel Solar](#Panel-Solar)
-  - [Sensor de Hoja Mojada](#Sensor-de-Hoja-Mojada)
   - [BH1750](#BH1750)
   - [MQ-135](#MQ-135)
-  - [Veleta](#Veleta)
-  - [Anemómetro](#Anemómetro)
  
 ### ESP8266
 #### WeMos Mini D1 (ESP8266)
