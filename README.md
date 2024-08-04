@@ -12,8 +12,8 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [Baterías 18650](#Baterías-18650)
   - [BH1750](#BH1750)
   - [MQ-135](#MQ-135)
-  - [STEP-DOWN](#MóduloStep-Down (MP2307))
-  - [STEP-UP](#MóduloStep-UP (MT3608-USB))
+  - [STEP-DOWN](#Módulo.Step-Down (MP2307))
+  - [STEP-UP](#Módulo.Step-UP (MT3608-USB))
     
 ### ESP8266
 #### WeMos Mini D1 (ESP8266)
@@ -56,12 +56,12 @@ De este sensor podemos tomar datos analógicos del comportamiento de la mezcla d
 
 <img src= "https://http2.mlstatic.com/D_NQ_NP_892623-MLA52961069097_122022-O.webp" width="330px" width="25px">
 
-### Módulo Step-Down (MP2307)
+### Módulo.Step-Down (MP2307)
 Este módulo nos sirve para bajar el voltaje que entregan las baterías y funcione correctamente la placa de desarrollo Weomos Mini
 
 <img src= "https://media.discordapp.net/attachments/1254855337148678175/1269452802778988614/D_NQ_NP_918866-MLA69553697542_052023-O.png?ex=66b01d8d&is=66aecc0d&hm=3d55018e7e977f68e922f4e8ec70c05a9814f18b56ccd566812ff1befd8cd09c&=&format=webp&quality=lossless" width="505px">
 
-### Módulo Step-Up (MT3608-USB)
+### Módulo.Step-Up (MT3608-USB)
 Este módulo nos sirve para subir el voltaje que entrega el cargador de las baterias y poder caragrlas a el voltaje que requiere el BMS 2S
 
 <img src= "https://media.discordapp.net/attachments/1254855337148678175/1269455871340187780/D_NQ_NP_862216-MLA51111797118_082022-O.png?ex=66b02069&is=66aecee9&hm=873195268fef1096919e49cb3b88b9be4729959a8c4992d56d7043ce41aeed6d&=&format=webp&quality=lossless" width="505px">
