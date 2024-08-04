@@ -8,7 +8,7 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [ESP8266](#ESP8266)
   - [BMP180](#BMP180)
   - [DHT22](#DHT22)
-  - [BMS 3S](#BMS-3S)
+  - [BMS 2S](#BMS-2S)
   - [Baterías 18650](#Baterías-18650)
   - [Panel Solar](#Panel-Solar)
   - [Sensor de Hoja Mojada](#Sensor-de-Hoja-Mojada)
@@ -38,10 +38,9 @@ Su función principal es medir con precisión la temperatura ambiente y la humed
 
 
 ### BMS 2S
-El módulo BMS 2S es esencial para la carga de las baterías, ya que desempeña un papel crucial en la regulación del voltaje que reciben durante el proceso de carga. Este módulo garantiza que las baterías reciban el voltaje adecuado para una carga segura y eficiente.
+El módulo BMS 2S es esencial para la carga de las baterías, ya que desempeña un papel crucial en la regulación del voltaje que reciben durante el proceso de carga. Este módulo garantiza que las baterías reciban el voltaje adecuado para una carga segura y eficiente. Este sirve apara para utilizar 2 baterias 18650 en serie
 
-<img src= "https://http2.mlstatic.com/D_NQ_NP_776202-MLA52962647214_122022-O.webp" width="300px">
-
+<img src= "https://media.discordapp.net/attachments/1254855337148678175/1269453259085451314/D_NQ_NP_882318-MLA74839026632_032024-O.png?ex=66b01dfa&is=66aecc7a&hm=c727c877df2b933ebc3f8a5308c33e36751a8c014739cce6ed26e87c8e01f9ce&=&format=webp&quality=lossless&width=477&height=402">
 
 ### Baterías 18650
 Las baterías 18650 son células recargables de iones de litio conocidas por su alta densidad de energía y fiabilidad. En nuestra estación meteorológica, estas baterías desempeñarán un papel vital al ofrecer una fuente de alimentación constante y duradera, lo que garantizará un funcionamiento continuo incluso en condiciones adversas en las que el panel solar no pueda suministrar la potencia nominal.
