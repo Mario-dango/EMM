@@ -12,7 +12,9 @@ Este es un proyecto institucional y surge de la necesidad de poder comparar los 
   - [Baterías 18650](#Baterías-18650)
   - [BH1750](#BH1750)
   - [MQ-135](#MQ-135)
- 
+  - [STEP-DOWN](#MóduloStep-Down (MP2307))
+  - [STEP-UP](#MóduloStep-UP (MT3608-USB))
+    
 ### ESP8266
 #### WeMos Mini D1 (ESP8266)
 La placa ESP32 (DOIT ESP32 Devkit V1) es un módulo basado en el microcontrolador ESP32, conocido por su capacidad de conexión Wi-Fi y Bluetooth. En nuestra estación meteorológica, esta placa desempeñará un papel vital al ofrecer una base solida para la  recopilación y transmisión de datos ambientales. Con su capacidad para manejar múltiples sensores y su compatibilidad con entornos de desarrollo como Arduino IDE, la ESP32 garantiza un funcionamiento continuo incluso en condiciones adversas, asegurando la integridad y precisión de las mediciones meteorológicas.
