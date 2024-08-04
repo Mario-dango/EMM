@@ -4,7 +4,7 @@
 #include "../lib/LeerSensores.h"
 #include "../lib/config.h"
 
-LeerSensoresControlador controlador(BMP_TYPE_280);
+LeerSensoresControlador controlador;
 
 #define ssid RED_SSID_WIFI
 #define pass PASSWORD_WIFI
@@ -25,13 +25,15 @@ char mensaje[80];
 WiFiClient esp_EMM;
 PubSubClient client(esp_EMM);
 
-void setupWifi(){
+void setupWifi()
+{
   delay(100);
   Serial.print("\nConectando a ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
 
-  while(WiFi.status() != WL_CONNECTED){
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(200);
     Serial.print(".-");
   }
@@ -40,18 +42,22 @@ void setupWifi(){
   Serial.println(ssid);
   Serial.print("\nCon la siguiente IP: ");
   Serial.println(WiFi.localIP());
-  
 }
 
-void reconectar(){
+void reconectar()
+{
   Serial.print("\nConectando al broker: ");
   Serial.println(broker);
-  while(!client.connected()){
-    if (client.connect("EMM")){
+  while (!client.connected())
+  {
+    if (client.connect("EMM"))
+    {
       Serial.print("\nConectado al broker: ");
       Serial.println(broker);
       client.subscribe(chau);
-    } else {
+    }
+    else
+    {
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(".-");
@@ -60,10 +66,12 @@ void reconectar(){
   }
 }
 
-void callback(char* topic, byte* payload, unsigned int length){
+void callback(char *topic, byte *payload, unsigned int length)
+{
   Serial.print("Mensaje recibido: ");
   Serial.println(topic);
-  for(unsigned int i=0; i<length; i++){
+  for (unsigned int i = 0; i < length; i++)
+  {
     Serial.print((char)payload[i]);
   }
   Serial.println();
@@ -73,8 +81,11 @@ unsigned long delayTime;
 void setup()
 {
   Serial.begin(115200);
-  String thisBoard= ARDUINO_BOARD;
+  String thisBoard = ARDUINO_BOARD;
   Serial.println(thisBoard);
+
+  //  Inicializar controlador de sensores
+  controlador.initControlador(BMP_TYPE_280);
 
   //  Inicializar conexión a la red
   setupWifi();
@@ -85,7 +96,8 @@ void setup()
 void loop()
 {
   //  Reconectar si se ha desconectado del Broker
-  if(!client.connected()){
+  if (!client.connected())
+  {
     reconectar();
   }
   client.loop();
@@ -98,44 +110,40 @@ void loop()
 
   //  Lectura y asignación de párametros de los sensores
   dhtData = controlador.leerDHT();
-  bmpData = controlador.leerBMP(BMP_TYPE_280);
+  bmpData = controlador.leerBMP();
   bh1750Data = controlador.leerBH();
   mqData = controlador.leerMQ(dhtData.temperatura, dhtData.humedadRelativa);
 
   // Publicar datos del BMP180
-  snprintf(mensaje, 75, 
-  "estado:OK temperatura:%.2f presAbs:%.2f presNivlMar:%.2f altit:%.2f", 
-    // bmpData.estado, 
-    bmpData.temperatura, 
-    bmpData.presionAbsoluta, 
-    bmpData.presionAlNivelDelMar,
-    bmpData.altitud
-  );  
+  snprintf(mensaje, 75,
+           "estado:OK temperatura:%.2f presAbs:%.2f presNivlMar:%.2f altit:%.2f",
+           // bmpData.estado,
+           bmpData.temperatura,
+           bmpData.presionAbsoluta,
+           bmpData.presionAlNivelDelMar,
+           bmpData.altitud);
   client.publish(senBMP180, mensaje);
-  
+
   // Publicar datos del BH1750
-  snprintf(mensaje, 20, "Lux:%.2f", bh1750Data);  
+  snprintf(mensaje, 20, "Lux:%.2f", bh1750Data);
   client.publish(senBH1750, mensaje);
 
   // Publicar datos del DHT11
-  snprintf(mensaje, 40, "hum:%.2f temp:%.2f sensacionTerm:%.2f", 
-    // dhtData.estado,
-    dhtData.humedadRelativa, 
-    dhtData.temperatura, 
-    dhtData.sensacionTermica
-  );  
+  snprintf(mensaje, 40, "hum:%.2f temp:%.2f sensacionTerm:%.2f",
+           // dhtData.estado,
+           dhtData.humedadRelativa,
+           dhtData.temperatura,
+           dhtData.sensacionTermica);
   client.publish(senDHT11, mensaje);
-  
+
   // Publicar datos del MQ135
-  snprintf(mensaje, 75, "rzero:%.2f correctRZero:%.2f res:%.2f ppmCO2:%.2f ppmCorreg:%.2f", 
-    mqData.rzero, 
-    mqData.zeroCorregido, 
-    mqData.resistencia, 
-    mqData.ppmCO2, 
-    mqData.ppmCorregidas
-  );  
+  snprintf(mensaje, 75, "rzero:%.2f correctRZero:%.2f res:%.2f ppmCO2:%.2f ppmCorreg:%.2f",
+           mqData.rzero,
+           mqData.zeroCorregido,
+           mqData.resistencia,
+           mqData.ppmCO2,
+           mqData.ppmCorregidas);
   client.publish(senMQ135, mensaje);
 
   delay(2000);
 }
-
