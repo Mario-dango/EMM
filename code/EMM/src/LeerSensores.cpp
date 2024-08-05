@@ -1,10 +1,12 @@
 #include "../lib/LeerSensores.h"
 
 LeerSensoresControlador::LeerSensoresControlador()
-    : mq135_sensor(DHT_PIN), lightMeter(BH1750_ADDRESS)
+    : dht(), bmp(), pressure(), lightMeter(BH1750_ADDRESS), mq135_sensor(PIN_MQ135)
 {
+    //  Método constructor de clase controlador de sensores
 }
 
+//  Método inicializador de comunicación y varios
 void LeerSensoresControlador::initControlador(const char *sensor)
 {
     // Initialize the I2C bus (BH1750 library doesn't do this automatically)
@@ -95,8 +97,15 @@ void LeerSensoresControlador::initControlador(const char *sensor)
     {
         Serial.println(F("Error initialising BH1750"));
     }
-}
 
+    #ifdef ESP32
+    #pragma message(THIS EXAMPLE IS FOR ESP8266 ONLY!)
+    #error Select ESP8266 board.
+    #endif
+    //  inicializo DHT
+    this->dht.setup(DHT_PIN, DHT_TYPE);
+}
+//  Método para leer sensor DHT22
 LeerSensoresControlador::datosDHT LeerSensoresControlador::leerDHT()
 {
     delay(dht.getMinimumSamplingPeriod());
@@ -107,17 +116,26 @@ LeerSensoresControlador::datosDHT LeerSensoresControlador::leerDHT()
     float sensacion = dht.computeHeatIndex(temperature, humidity, false);
 
     // Serial.print(dht.getStatusString());
-    Serial.print("\nA continuación: Datos leidos del sensor DHT11\n");
+    if (DHT_TYPE == DHTesp::DHT22)
+    {
+        Serial.printf("\nA continuación: Datos leidos del sensor DHT22\n");
+    }
+    else if (DHT_TYPE == DHTesp::DHT11)
+    {
+        Serial.printf("\nA continuación: Datos leidos del sensor DHT11 \n");
+    }
+    else{
+        Serial.print("\nHay un problema con el DHT_TYPE d ela librería.");
+    }
     Serial.print("Humedad de: ");
     Serial.print(humidity);
     Serial.print("\t\tTemperatura de:");
     Serial.print(temperature, 1);
     Serial.print("\t\tSensación Térmica calculada de:");
-    Serial.print(dht.computeHeatIndex(temperature, humidity, false), 1);
+    Serial.println(sensacion, 1);
     return {humidity, temperature, sensacion};
 }
-
-//  Metodos para leer sensor MQ135
+//  Métodos para leer sensor MQ135
 LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ(float temperature, float humidity)
 {
     float rzero = mq135_sensor.getRZero();
@@ -126,7 +144,7 @@ LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ(float temperatu
     float ppm = mq135_sensor.getPPM();
     float correctedPPM = mq135_sensor.getCorrectedPPM(temperature, humidity);
 
-    Serial.print("\n\nA continuación: Datos leidos del sensor MQ135\n");
+    Serial.print("\nA continuación: Datos leidos del sensor MQ135\n");
 
     Serial.print("MQ135 RZero: ");
     Serial.print(rzero);
@@ -143,7 +161,6 @@ LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ(float temperatu
 
     return {rzero, correctedRZero, resistance, ppm, correctedPPM};
 }
-
 LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ()
 {
     this->temperatura = this->leerDHT().temperatura;
@@ -154,7 +171,7 @@ LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ()
     float ppm = mq135_sensor.getPPM();
     float correctedPPM = mq135_sensor.getCorrectedPPM(temperatura, humedadRelativa);
 
-    Serial.print("\n\nA continuación: Datos leidos del sensor MQ135\n");
+    Serial.print("\nA continuación: Datos leidos del sensor MQ135\n");
 
     Serial.print("MQ135 RZero: ");
     Serial.print(rzero);
@@ -171,10 +188,10 @@ LeerSensoresControlador::datosMQ LeerSensoresControlador::leerMQ()
 
     return {rzero, correctedRZero, resistance, ppm, correctedPPM};
 }
-
-//  Metodo para leer sensor BMP280
+//  Método para leer sensor BMP280
 LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
 {
+    Serial.printf("\nA continuación: Datos leidos del sensor %s\n", this->BMP_SELECTED);
     if (strcmp(this->BMP_SELECTED, BMP_TYPE_280) == 0)
     {
         float T, P, p0, a;
@@ -185,20 +202,19 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
 
         Serial.print(F("Temperature = "));
         Serial.print(T);
-        Serial.println(" *C");
+        Serial.print(" *C \t\t");
 
         Serial.print(F("Pressure = "));
         Serial.print(P);
-        Serial.println(" Pa");
+        Serial.print(" Pa \t\t");
 
         Serial.print(F("Approx altitude = "));
         Serial.print(a); /* Adjusted to local forecast! */
-        Serial.println(" m");
+        Serial.print(" m \t\t");
 
         Serial.print(F("Presión a nivel del mar = "));
         Serial.print(p0);
-        Serial.println(" Pa");
-        Serial.println();
+        Serial.println(" Pa \t\t");
 
         return {T, P, p0, a};
     }
@@ -312,8 +328,7 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
         return {0, 0, 0, 0};
     }
 }
-
-//  Metodo para leer sensor BH1750
+//  Método para leer sensor BH1750
 float LeerSensoresControlador::leerBH()
 {
     Serial.print("\nA continuación: Datos leidos del sensor BH1750\n");
@@ -323,7 +338,7 @@ float LeerSensoresControlador::leerBH()
         lux = lightMeter.readLightLevel();
         Serial.print("Valor de luminosidad: ");
         Serial.print(lux);
-        Serial.print(" lx");
+        Serial.println(" lx");
     }
     return lux;
 }

@@ -14,14 +14,14 @@
 
 /*****************DEFINICIONES*************/
 //  Definiciones del sensor DHT22
-#define DHT_PIN 3
+#define DHT_PIN D3
 #define DHT_TYPE DHTesp::DHT22
 //  Definiciones del sensor MQ135
 #define PIN_MQ135 A0 // MQ135 Analog Input Pin
 //  Definiciones del sensor BMP's
 #define ALTITUDE 1655.0 // Altitude of SparkFun's HQ in Boulder, CO. in meters
-#define BMP_TYPE_180 "bmp180"
-#define BMP_TYPE_280 "bmp280"
+#define BMP_TYPE_180 "BMP180"
+#define BMP_TYPE_280 "BMP280"
 // #define BMP280_ADDRESS (0x77) /**< The default I2C address for the sensor. */
 // #define BMP280_ADDRESS_ALT (0x76)    /**< Alternative I2C address for the sensor. */
 // #define BMP280_CHIPID (0x58)  /**< Default chip ID. */
@@ -66,7 +66,6 @@ public:
     //  Declaración de atributos
     const char *BMP_SELECTED;
     float temperatura, humedadRelativa;
-
     //  Declaración de Métodos
     LeerSensoresControlador();
     void initControlador(const char *sensor);
@@ -78,12 +77,12 @@ public:
 
 private:
     DHTesp dht;
-    MQ135 mq135_sensor;
     Adafruit_BMP280 bmp; // I2C
     // Adafruit_BMP280 bmp(BMP_CS); // hardware SPI
     // Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
     SFE_BMP180 pressure;
     BH1750 lightMeter;
+    MQ135 mq135_sensor;
 };
 
 #endif
