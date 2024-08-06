@@ -17,6 +17,7 @@ public:
     void testFunciones();
     void testChars();
 
+    void enviandoDatos();
     void mostrarDatos(
         float tempDHT = 0, float hum = 0, float sensacionT = 0,
         float lux = 0,
@@ -25,16 +26,28 @@ public:
 
     void deepSleep();
 
+    void initWiFi(
+        boolean estado,
+        const char *red);
+    void initMQTT(
+        boolean estado,
+        const char *broker);
+    void reconectando(
+        const char *red,
+        const char *broker,
+        const char *userBroker);
     void showInit();
     void infoConexion(
         boolean estado,
         const char *red,
         const char *broker,
         const char *userBroker,
-        const char *ip);
+        String ip);
 
 private:
     LCD_I2C pantalla;
+
+    //****Para armar caracteres ver: https://www.miki.pro/diseno-lcd.html****/
 
     // Definir los caracteres personalizados
     byte a_acute[8] = {
@@ -96,6 +109,27 @@ private:
         B10001,
         B10001,
         B00000};
+
+    byte grado[8] = {
+        B00110,
+        B01001,
+        B01001,
+        B00110,
+        B00000,
+        B00000,
+        B00000,
+        B00000};
+
+    // literalmente ->  :v
+    byte caraV[8] = {
+        B00100,
+        B10100,
+        B10000,
+        B00011,
+        B01100,
+        B10000,
+        B01100,
+        B00011};
 };
 
 #endif

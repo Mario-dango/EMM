@@ -1,4 +1,4 @@
-#include <Arduino.h>  
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include "../lib/LeerSensores.h"
@@ -14,21 +14,6 @@ ControladorLCD pantalla;
 #define brokerPass PASSWORD_BROKER
 #define broker DIRECCION_BROKER
 
-//  Topicos del Broker Mosquitto MQTT
-#define senBH1750 "EMM/bh1750"
-#define senBMP180 "EMM/bmp180"
-#define senDHT11 "EMM/dht11"
-#define senMQ135 "EMM/mq135"
-#define chau "EMM/test"
-//  Topicos Del broker ETec
-#define temperaturaDHT "temp"
-#define humedadDHT "hum"
-#define presionBMP "bp"
-#define luminosidad "luz"
-#define calidadAire "aire"
-#define velocidadViento "velocidad"
-#define direccionViento "direccion"
-#define sensorDeLluvia "lluvia"
 
 char mensaje[80];
 
@@ -42,24 +27,31 @@ void setupWifi()
   Serial.print("\nConectando a ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
+  // Mostrar en el LCD que se está conectando a la red
+  pantalla.initWiFi(false, ssid);
 
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(200);
     Serial.print(".-");
   }
-
+  pantalla.initWiFi(true, ssid);
   ipEMM = WiFi.localIP().toString().c_str();
+  // Serial.printf("IPADDRESS: %s", WiFi.localIP());   // No sirve para parsear la IPADDRESS cómo string
+  Serial.print(WiFi.localIP().toString());
   Serial.print("\nConectado a la red: ");
   Serial.println(ssid);
-  Serial.print("\nCon la siguiente IP: ");
+  Serial.print("Con la siguiente IP: ");
   Serial.println(ipEMM);
+  // // Mostrar en el LCD que se pudo conectar a la red
+  // pantalla.infoConexion(WiFi.status(), ssid, broker, brokerUser, ipEMM);
 }
 
 void reconectar()
 {
   Serial.print("\nConectando al broker: ");
   Serial.println(broker);
+  pantalla.initMQTT(false, broker);
   while (!client.connected())
   {
     if (client.connect("EMM"))
@@ -67,15 +59,20 @@ void reconectar()
       Serial.print("\nConectado al broker: ");
       Serial.println(broker);
       client.subscribe(chau);
+      pantalla.initMQTT(true, broker);
+      // Mostrar en el LCD que se pudo conectar a la red
+      Serial.print("Se ha REconecatado re loco");
+      pantalla.infoConexion(client.connected(), ssid, broker, brokerUser, WiFi.localIP().toString());
     }
     else
     {
-      
-    pantalla.infoConexion(!client.connected(), ssid, broker, brokerUser, "Sin IP.");
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(".-");
-      delay(1000);
+      pantalla.initMQTT(false, broker);
+
+      // Mostrar en el LCD que se pudo conectar a la red
+      pantalla.reconectando(ssid, broker, brokerUser);
     }
   }
 }
@@ -101,7 +98,7 @@ void envioMQTT()
     reconectar();
   }
   client.loop();
-  pantalla.infoConexion(!client.connected(), ssid, broker, brokerUser, ipEMM);
+  pantalla.enviandoDatos();
 
   //  Declaración de variables de lectura para sensores tomando cómo estructura de datos la de la clase LeerSensoresControlador
   LeerSensoresControlador::datosBMP bmpData;
@@ -122,29 +119,46 @@ void envioMQTT()
   if (!local)
   {
     // Publicar temperatura ETec_broker
-    snprintf(mensaje, 20, "%.2f °C", (bmpData.temperatura + dhtData.temperatura) / 2);
-    client.publish(temperaturaDHT, mensaje);
+    snprintf(mensaje, 20, "%.2f °C", dhtData.temperatura);
+    client.publish(TOPIC_DHT_TEMP, mensaje);
     // Publicar humedad ETec_broker
     snprintf(mensaje, 20, "%.2f %%HR", dhtData.humedadRelativa);
-    client.publish(humedadDHT, mensaje);
+    client.publish(TOPIC_DHT_HUM, mensaje);
+    // Publicar sensación térmica ETec_broker
+    snprintf(mensaje, 20, "%.2f °C", dhtData.sensacionTermica);
+    client.publish(TOPIC_DHT_SENST, mensaje);
+
+    // Publicar temperatura bmp ETec_broker
+    snprintf(mensaje, 20, "%.2f hPa", bmpData.temperatura);
+    client.publish(TOPIC_BMP_TEMP, mensaje);
     // Publicar presion ETec_broker
-    snprintf(mensaje, 20, "%.2f Pa", bmpData.presionAbsoluta);
-    client.publish(presionBMP, mensaje);
+    snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAbsoluta);
+    client.publish(TOPIC_BMP_PRES, mensaje);
+    // Publicar altitud ETec_broker
+    snprintf(mensaje, 20, "%.2f hPa", bmpData.altitud);
+    client.publish(TOPIC_BMP_ALT, mensaje);
+    // Publicar presion a nivel del mar ETec_broker
+    snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAlNivelDelMar);
+    client.publish(TOPIC_BMP_PRESNM, mensaje);
+
     // Publicar luz ETec_broker
     snprintf(mensaje, 20, "%.2f lux", bh1750Data);
-    client.publish(luminosidad, mensaje);
+    client.publish(TOPIC_BH_LUZ, mensaje);
+
     // Publicar ppmCO2 ETec_broker
     snprintf(mensaje, 20, "%.2f ppmCO2", mqData.ppmCO2);
-    client.publish(calidadAire, mensaje);
+    client.publish(TOPIC_MQ_PPMCO2, mensaje);
+
     // Publicar velocidad del Viento ETec_broker
     snprintf(mensaje, 20, "Proximamente");
-    client.publish(velocidadViento, mensaje);
+    client.publish(TOPIC_VIENTO_VELOCIDAD, mensaje);
     // Publicar dirección del viento ETec_broker
     snprintf(mensaje, 20, "Proximamente");
-    client.publish(direccionViento, mensaje);
+    client.publish(TOPIC_VIENTO_DIRECCION, mensaje);
+
     // Publicar lluvia ETec_broker
     snprintf(mensaje, 20, "Proximamente");
-    client.publish(sensorDeLluvia, mensaje);
+    client.publish(TOPIC_YL_LLUVIA, mensaje);
   }
   else
   {
@@ -208,14 +222,12 @@ void setup()
 
   envioMQTT();
 
-
-  Serial.print("\n*** Entrando al modo Deep Sleep***");
+  Serial.print("\n*** Entrando al modo Deep Sleep***\n");
   pantalla.deepSleep();
 
   //****Para ESP8266****/
   // ESP.deepSleep(15*60*1000000);    // DEEP sleep 15 minutos
   ESP.deepSleep(5 * 1000000); // DEEP sleep de 5 segundos
-
 }
 
 void loop()
