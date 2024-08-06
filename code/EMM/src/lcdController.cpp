@@ -8,6 +8,14 @@ void ControladorLCD::init()
 {
     this->pantalla.begin(); // If you are using more I2C devices using the Wire library use lcd.begin(false)
                             // this stop the library(LCD_I2C) from calling Wire.begin()
+
+  // Crear los caracteres personalizados
+  this->pantalla.createChar(0, a_acute);
+  this->pantalla.createChar(1, e_acute);
+  this->pantalla.createChar(2, i_acute);
+  this->pantalla.createChar(3, o_acute);
+  this->pantalla.createChar(4, u_acute);
+  this->pantalla.createChar(5, n_tilde);
     this->pantalla.backlight();
 }
 
@@ -15,8 +23,11 @@ void ControladorLCD::showInit()
 {
     this->pantalla.print("Inicializando"); // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 1);        // Or setting the cursor in the desired position.
-    this->pantalla.print("Comunicación");
+    this->pantalla.print("Comunicaci");
+    this->pantalla.write(3);
+    this->pantalla.print("n");
     this->pantalla.setCursor(0, 0); // Or setting the cursor in the desired position.
+    this->pantalla.clear();
 }
 
 void ControladorLCD::infoConexion(
@@ -28,7 +39,10 @@ void ControladorLCD::infoConexion(
 {
     if (!estado)
     {
-        this->pantalla.printf("Sin Conexión.");   // You can make spaces using well... spaces
+        this->pantalla.printf("Sin Conexi");   // You can make spaces using well... spaces
+    this->pantalla.write(3);
+        this->pantalla.printf("n.");   // You can make spaces using well... spaces
+
         this->pantalla.setCursor(0, 1);           // Or setting the cursor in the desired position.
         this->pantalla.printf("Reintentando..."); // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 0);
@@ -71,7 +85,7 @@ void ControladorLCD::mostrarDatos(
     float pres, float altitud, float tempBMP)
 {
     //  Mostrar los datos del DHT
-    this->pantalla.printf("DHT22 °C %%HR");               // You can make spaces using well... spaces
+    this->pantalla.printf("DHT22 °C y %%HR");               // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 1);                       // Or setting the cursor in the desired position.
     this->pantalla.printf("T:%.2f H:%.2f", tempDHT, hum); // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 0);                       // Or setting the cursor in the desired position.
@@ -85,9 +99,9 @@ void ControladorLCD::mostrarDatos(
     delay(2000);
     this->pantalla.clear();
     //  Mostrar los datos del DHT
-    this->pantalla.printf("BMP");                          // You can make spaces using well... spaces
+    this->pantalla.printf("BMP280 hPa y m");                          // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 1);                        // Or setting the cursor in the desired position.
-    this->pantalla.printf("P:%.1f A:%.1f", pres, altitud); // You can make spaces using well... spaces
+    this->pantalla.printf("P:%.1fA:%.1f", pres, altitud); // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 0);                        // Or setting the cursor in the desired position.
     delay(2000);
     this->pantalla.clear();
@@ -99,6 +113,10 @@ void ControladorLCD::mostrarDatos(
     delay(2000);
     this->pantalla.clear();
     this->pantalla.clear();
+}
+
+void ControladorLCD::deepSleep()
+{
 }
 
 void ControladorLCD::testHelloWorld()

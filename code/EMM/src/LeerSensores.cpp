@@ -205,16 +205,16 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
         Serial.print(" *C \t\t");
 
         Serial.print(F("Pressure = "));
-        Serial.print(P);
-        Serial.print(" Pa \t\t");
+        Serial.print(P/100); //Hecto Pascales
+        Serial.print(" hPa \t\t");
 
         Serial.print(F("Approx altitude = "));
         Serial.print(a); /* Adjusted to local forecast! */
         Serial.print(" m \t\t");
 
         Serial.print(F("Presión a nivel del mar = "));
-        Serial.print(p0);
-        Serial.println(" Pa \t\t");
+        Serial.print(p0/100);   // Hecto pascales
+        Serial.println(" hPa \t\t");
 
         return {T, P, p0, a};
     }

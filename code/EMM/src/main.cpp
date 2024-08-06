@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <Arduino.h>  
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include "../lib/LeerSensores.h"
@@ -70,6 +70,8 @@ void reconectar()
     }
     else
     {
+      
+    pantalla.infoConexion(!client.connected(), ssid, broker, brokerUser, "Sin IP.");
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(".-");
@@ -96,7 +98,6 @@ void envioMQTT()
   //  Reconectar si se ha desconectado del Broker
   if (!client.connected())
   {
-    pantalla.infoConexion(!client.connected(), ssid, broker, brokerUser);
     reconectar();
   }
   client.loop();
@@ -116,6 +117,7 @@ void envioMQTT()
   // mqData = controlador.leerMQ();
 
   bool local = false;
+  // bool local = true;
 
   if (!local)
   {
@@ -146,6 +148,7 @@ void envioMQTT()
   }
   else
   {
+    //**************************Envio de datos a servidor local de Mario
     // Publicar datos del BMP180
     snprintf(mensaje, 75,
              "estado:OK temperatura:%.2f presAbs:%.2f presNivlMar:%.2f altit:%.2f",
@@ -204,8 +207,15 @@ void setup()
   client.setCallback(callback);
 
   envioMQTT();
+
+
+  Serial.print("\n*** Entrando al modo Deep Sleep***");
+  pantalla.deepSleep();
+
+  //****Para ESP8266****/
   // ESP.deepSleep(15*60*1000000);    // DEEP sleep 15 minutos
   ESP.deepSleep(5 * 1000000); // DEEP sleep de 5 segundos
+
 }
 
 void loop()
