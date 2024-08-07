@@ -129,13 +129,13 @@ void envioMQTT()
     client.publish(TOPIC_DHT_SENST, mensaje);
 
     // Publicar temperatura bmp ETec_broker
-    snprintf(mensaje, 20, "%.2f hPa", bmpData.temperatura);
+    snprintf(mensaje, 20, "%.2f °C", bmpData.temperatura);
     client.publish(TOPIC_BMP_TEMP, mensaje);
     // Publicar presion ETec_broker
     snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAbsoluta);
     client.publish(TOPIC_BMP_PRES, mensaje);
     // Publicar altitud ETec_broker
-    snprintf(mensaje, 20, "%.2f hPa", bmpData.altitud);
+    snprintf(mensaje, 20, "%.2f m", bmpData.altitud);
     client.publish(TOPIC_BMP_ALT, mensaje);
     // Publicar presion a nivel del mar ETec_broker
     snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAlNivelDelMar);
