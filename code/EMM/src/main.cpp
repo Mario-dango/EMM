@@ -142,7 +142,7 @@ void envioMQTT()
     client.publish(TOPIC_BMP_PRESNM, mensaje);
 
     // Publicar luz ETec_broker
-    snprintf(mensaje, 20, "%.2f lux", bh1750Data);
+    snprintf(mensaje, 20, "%.2f lm", bh1750Data);
     client.publish(TOPIC_BH_LUZ, mensaje);
 
     // Publicar ppmCO2 ETec_broker

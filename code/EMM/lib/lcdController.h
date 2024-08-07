@@ -20,7 +20,7 @@ public:
     void enviandoDatos();
     void mostrarDatos(
         float tempDHT = 0, float hum = 0, float sensacionT = 0,
-        float lux = 0,
+        float lm = 0,
         float ppmco2 = 0,
         float pres = 0, float altitud = 0, float tempBMP = 0);
 

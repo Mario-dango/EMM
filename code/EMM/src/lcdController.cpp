@@ -173,7 +173,7 @@ void ControladorLCD::infoConexion(
 
 void ControladorLCD::mostrarDatos(
     float tempDHT, float hum, float sensacionT,
-    float lux,
+    float lm,
     float ppmco2,
     float pres, float altitud, float tempBMP)
 {
@@ -218,7 +218,7 @@ void ControladorLCD::mostrarDatos(
     //  Mostrar los datos del DHT
     this->pantalla.printf("BH1750 Lumenes");   // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 1);            // Or setting the cursor in the desired position.
-    this->pantalla.printf("L: %.2f lux", lux); // You can make spaces using well... spaces
+    this->pantalla.printf("L: %.2f lm", lm); // You can make spaces using well... spaces
     this->pantalla.setCursor(0, 0);            // Or setting the cursor in the desired position.
     delay(3000);
     this->pantalla.clear();
