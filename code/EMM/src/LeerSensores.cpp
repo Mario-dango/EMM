@@ -196,8 +196,8 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
     {
         float T, P, p0, a;
         T = bmp.readTemperature();
-        P = bmp.readPressure();
-        p0 = (P / pow(1 - (ALTITUDE / 44330.0), 5.255));
+        P = bmp.readPressure()/100;
+        p0 = (P / pow(1 - (ALTITUDE / 44330.0), 5.255)/100);
         a = bmp.readAltitude(1013.25);
 
         Serial.print(F("Temperature = "));
@@ -205,7 +205,7 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
         Serial.print(" *C \t\t");
 
         Serial.print(F("Pressure = "));
-        Serial.print(P/100); //Hecto Pascales
+        Serial.print(P); //Hecto Pascales
         Serial.print(" hPa \t\t");
 
         Serial.print(F("Approx altitude = "));
@@ -213,7 +213,7 @@ LeerSensoresControlador::datosBMP LeerSensoresControlador::leerBMP()
         Serial.print(" m \t\t");
 
         Serial.print(F("Presión a nivel del mar = "));
-        Serial.print(p0/100);   // Hecto pascales
+        Serial.print(p0);   // Hecto pascales
         Serial.println(" hPa \t\t");
 
         return {T, P, p0, a};

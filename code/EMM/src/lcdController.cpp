@@ -33,7 +33,7 @@ void ControladorLCD::showInit()
     this->pantalla.clear();
 }
 
-void ControladorLCD::initWiFi(boolean estado, const char *red)
+void ControladorLCD::initWiFi(boolean estado, const char *red, String IP)
 {
     if (estado)
     {
@@ -41,6 +41,15 @@ void ControladorLCD::initWiFi(boolean estado, const char *red)
         this->pantalla.printf("Se ha unido al"); // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 1);          // Or setting the cursor in the desired position.
         this->pantalla.printf("WiFi:%s", red);   // You can make spaces using well... spaces
+        this->pantalla.setCursor(0, 0);
+        delay(1800);
+        this->pantalla.clear();
+        
+        this->pantalla.printf("La direcci"); // You can make spaces using well... spaces
+        this->pantalla.write(3);
+        this->pantalla.printf("n IP"); 
+        this->pantalla.setCursor(0, 1);
+        this->pantalla.print(IP);   // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 0);
         delay(1800);
     }

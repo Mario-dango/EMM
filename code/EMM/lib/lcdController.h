@@ -28,7 +28,8 @@ public:
 
     void initWiFi(
         boolean estado,
-        const char *red);
+        const char *red,
+        String ip = "x");
     void initMQTT(
         boolean estado,
         const char *broker);

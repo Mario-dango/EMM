@@ -18,7 +18,7 @@ ControladorLCD pantalla;
 char mensaje[80];
 
 WiFiClient esp_EMM;
-const char *ipEMM;
+String ipEMM;
 PubSubClient client(esp_EMM);
 
 void setupWifi()
@@ -35,14 +35,14 @@ void setupWifi()
     delay(200);
     Serial.print(".-");
   }
-  pantalla.initWiFi(true, ssid);
-  ipEMM = WiFi.localIP().toString().c_str();
+  ipEMM = WiFi.localIP().toString();
   // Serial.printf("IPADDRESS: %s", WiFi.localIP());   // No sirve para parsear la IPADDRESS cómo string
   Serial.print(WiFi.localIP().toString());
   Serial.print("\nConectado a la red: ");
   Serial.println(ssid);
   Serial.print("Con la siguiente IP: ");
   Serial.println(ipEMM);
+  pantalla.initWiFi(true, ssid, ipEMM);
   // // Mostrar en el LCD que se pudo conectar a la red
   // pantalla.infoConexion(WiFi.status(), ssid, broker, brokerUser, ipEMM);
 }
@@ -226,8 +226,8 @@ void setup()
   pantalla.deepSleep();
 
   //****Para ESP8266****/
-  // ESP.deepSleep(15*60*1000000);    // DEEP sleep 15 minutos
-  ESP.deepSleep(5 * 1000000); // DEEP sleep de 5 segundos
+  ESP.deepSleep(15*60*1000000);    // DEEP sleep 15 minutos
+  // ESP.deepSleep(5 * 1000000); // DEEP sleep de 5 segundos
 }
 
 void loop()
