@@ -32,7 +32,7 @@ function formatTime(dateString) {
 function createTemperatureHumidityChart(data) {
     // Configuración del primer gráfico (Temperatura y Humedad Relativa)
     const labels = data.map(d => formatTime(d.Fecha));
-    const temperatures = data.map(d => parseFloat(d.Temperatura));
+    const temperatures = data.map(d => parseFloat(d["Temperatura"]));
     const humidities = data.map(d => parseFloat(d["Humedad Relativa"]));
 
     const ctx = document.getElementById('myChart1').getContext('2d');

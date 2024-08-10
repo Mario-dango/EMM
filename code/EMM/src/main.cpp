@@ -1,17 +1,4 @@
 #include <Arduino.h>
-<<<<<<< HEAD
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.println("Hello, World!");
-  delay(1000);
-}
-=======
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include "../lib/LeerSensores.h"
@@ -246,4 +233,3 @@ void setup()
 void loop()
 {
 }
->>>>>>> fc143cf4a23163ab6579615413104b272cf9aa48
