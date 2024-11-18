@@ -69,7 +69,7 @@ void ControladorLCD::initMQTT(boolean estado, const char *broker)
     if (estado)
     {
         this->pantalla.clear();
-        this->pantalla.printf("Canal al Broker"); // You can make spaces using well... spaces
+        this->pantalla.printf("Canal HTTP"); // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 1);           // Or setting the cursor in the desired position.
         this->pantalla.printf("Establecido !");   // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 0);
@@ -79,7 +79,7 @@ void ControladorLCD::initMQTT(boolean estado, const char *broker)
     else
     {
         this->pantalla.clear();
-        this->pantalla.printf("MQTT conectando"); // You can make spaces using well... spaces
+        this->pantalla.printf("Conectando HTTP"); // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 1);           // Or setting the cursor in the desired position.
         this->pantalla.printf("%s", broker);      // You can make spaces using well... spaces
         this->pantalla.setCursor(0, 0);

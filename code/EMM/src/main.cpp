@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 #include "../lib/LeerSensores.h"
 #include "../lib/config.h"
 #include "../lib/lcdController.h"
@@ -10,226 +10,136 @@ ControladorLCD pantalla;
 
 #define ssid RED_SSID_WIFI
 #define pass PASSWORD_WIFI
-#define brokerUser USUARIO_BROKER
-#define brokerPass PASSWORD_BROKER
-#define broker DIRECCION_BROKER
+#define serverName "https://emetec.wetec.um.edu.ar/emmapi"  // Actualizar la URL aquí
 
+// Variables de ejemplo de los sensores (temperatura, humedad, etc.)
+float temperature, humidity, bmpTemperature, bmpPressure, bmpAltitude;
+float bh1750Data, ppmCO2;
 
-char mensaje[80];
-
-WiFiClient esp_EMM;
-String ipEMM;
-PubSubClient client(esp_EMM);
-
-void setupWifi()
-{
+// Conectar WiFi
+void setupWifi() {
   delay(100);
   Serial.print("\nConectando a ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
-  // Mostrar en el LCD que se está conectando a la red
   pantalla.initWiFi(false, ssid);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(200);
     Serial.print(".-");
   }
-  ipEMM = WiFi.localIP().toString();
-  // Serial.printf("IPADDRESS: %s", WiFi.localIP());   // No sirve para parsear la IPADDRESS cómo string
-  Serial.print(WiFi.localIP().toString());
-  Serial.print("\nConectado a la red: ");
+  
+  String ipEMM = WiFi.localIP().toString();
+  Serial.print("Conectado a la red: ");
   Serial.println(ssid);
   Serial.print("Con la siguiente IP: ");
   Serial.println(ipEMM);
   pantalla.initWiFi(true, ssid, ipEMM);
-  // // Mostrar en el LCD que se pudo conectar a la red
-  // pantalla.infoConexion(WiFi.status(), ssid, broker, brokerUser, ipEMM);
 }
 
-void reconectar()
-{
-  Serial.print("\nConectando al broker: ");
-  Serial.println(broker);
-  pantalla.initMQTT(false, broker);
-  while (!client.connected())
-  {
-    if (client.connect("EMM"))
-    {
-      Serial.print("\nConectado al broker: ");
-      Serial.println(broker);
-      client.subscribe(chau);
-      pantalla.initMQTT(true, broker);
-      // Mostrar en el LCD que se pudo conectar a la red
-      Serial.print("Se ha REconecatado re loco");
-      pantalla.infoConexion(client.connected(), ssid, broker, brokerUser, WiFi.localIP().toString());
-    }
-    else
-    {
-      Serial.print("Error de conexión, rc=");
-      Serial.print(client.state());
-      Serial.println(".-");
-      pantalla.initMQTT(false, broker);
+// Enviar los datos a través de HTTP POST en formato JSON
+void enviarDatosHTTP() {
+  // Crear cliente seguro para HTTPS
+  WiFiClientSecure client;
+  client.setInsecure(); // Para entorno de pruebas sin certificado
 
-      // Mostrar en el LCD que se pudo conectar a la red
-      pantalla.reconectando(ssid, broker, brokerUser);
-    }
-  }
-}
-
-void callback(char *topic, byte *payload, unsigned int length)
-{
-  Serial.print("Mensaje recibido: ");
-  Serial.println(topic);
-  for (unsigned int i = 0; i < length; i++)
-  {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-}
-
-unsigned long delayTime;
-
-void envioMQTT()
-{
-  //  Reconectar si se ha desconectado del Broker
-  if (!client.connected())
-  {
-    reconectar();
-  }
-  client.loop();
-  pantalla.enviandoDatos();
-
-  //  Declaración de variables de lectura para sensores tomando cómo estructura de datos la de la clase LeerSensoresControlador
-  LeerSensoresControlador::datosBMP bmpData;
-  LeerSensoresControlador::datosDHT dhtData;
-  LeerSensoresControlador::datosMQ mqData;
-  float bh1750Data;
-
-  //  Lectura y asignación de párametros de los sensores
-  dhtData = controlador.leerDHT();
-  bmpData = controlador.leerBMP();
+  // Obtener datos de los sensores
+  LeerSensoresControlador::datosBMP bmpData = controlador.leerBMP();
+  LeerSensoresControlador::datosDHT dhtData = controlador.leerDHT();
   bh1750Data = controlador.leerBH();
-  mqData = controlador.leerMQ(dhtData.temperatura, dhtData.humedadRelativa);
-  // mqData = controlador.leerMQ();
+  LeerSensoresControlador::datosMQ mqData = controlador.leerMQ(dhtData.temperatura, dhtData.humedadRelativa);  
 
-  bool local = false;
-  // bool local = true;
+  temperature = dhtData.temperatura;
+  humidity = dhtData.humedadRelativa;
+  bmpTemperature = bmpData.temperatura;
+  bmpPressure = bmpData.presionAbsoluta;
+  bmpAltitude = bmpData.altitud;
+  ppmCO2 = mqData.ppmCO2;
 
-  if (!local)
-  {
-    // Publicar temperatura ETec_broker
-    snprintf(mensaje, 20, "%.2f °C", dhtData.temperatura);
-    client.publish(TOPIC_DHT_TEMP, mensaje);
-    // Publicar humedad ETec_broker
-    snprintf(mensaje, 20, "%.2f %%HR", dhtData.humedadRelativa);
-    client.publish(TOPIC_DHT_HUM, mensaje);
-    // Publicar sensación térmica ETec_broker
-    snprintf(mensaje, 20, "%.2f °C", dhtData.sensacionTermica);
-    client.publish(TOPIC_DHT_SENST, mensaje);
+  // Crear el objeto JSON para enviar
+  String postData = "{\"EME_n0/dht/temp\":" + String(temperature) + 
+                    ",\"EME_n0/dht/hum\":" + String(humidity) + 
+                    ",\"EME_n0/dht/senst\":" + String(dhtData.sensacionTermica) + 
+                    ",\"EME_n0/bmp/temp\":" + String(bmpTemperature) + 
+                    ",\"EME_n0/bmp/pres\":" + String(bmpPressure) + 
+                    ",\"EME_n0/bmp/alt\":" + String(bmpAltitude) + 
+                    ",\"EME_n0/bmp/presnm\":" + String(bmpData.presionAlNivelDelMar) + 
+                    ",\"EME_n0/bh/presnm\":" + String(bh1750Data) + 
+                    ",\"EME_n0/mq/ppmco2\":" + String(ppmCO2) + 
+                    ",\"EME_n0/yl/lluv\":\"Proximamente\"," +  // Asumiendo que el valor es estático
+                    "\"EME_n0/viento/vel\":\"Proximamente\"," +  // Asumiendo que el valor es estático
+                    "\"EME_n0/viento/dir\":\"Proximamente\"}";  // Asumiendo que el valor es estático
 
-    // Publicar temperatura bmp ETec_broker
-    snprintf(mensaje, 20, "%.2f °C", bmpData.temperatura);
-    client.publish(TOPIC_BMP_TEMP, mensaje);
-    // Publicar presion ETec_broker
-    snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAbsoluta);
-    client.publish(TOPIC_BMP_PRES, mensaje);
-    // Publicar altitud ETec_broker
-    snprintf(mensaje, 20, "%.2f m", bmpData.altitud);
-    client.publish(TOPIC_BMP_ALT, mensaje);
-    // Publicar presion a nivel del mar ETec_broker
-    snprintf(mensaje, 20, "%.2f hPa", bmpData.presionAlNivelDelMar);
-    client.publish(TOPIC_BMP_PRESNM, mensaje);
+  // Conectar al servidor
+  pantalla.initMQTT(true, serverName);
+  if (client.connect("emetec.wetec.um.edu.ar", 443)) {
+    Serial.println("Conectado al servidor HTTPS");
 
-    // Publicar luz ETec_broker
-    snprintf(mensaje, 20, "%.2f lm", bh1750Data);
-    client.publish(TOPIC_BH_LUZ, mensaje);
+    // Enviar solicitud HTTP POST
+    client.println("POST /emmapi HTTP/1.1");  // Cambié la ruta aquí
+    client.println("Host: emetec.wetec.um.edu.ar");
+    client.println("User-Agent: ESP8266");
+    client.println("Content-Type: application/json");
+    client.print("Content-Length: ");
+    client.println(postData.length());
+    client.println();  // Línea vacía para indicar fin de encabezados
+    client.println(postData);  // Cuerpo de la solicitud (datos)
 
-    // Publicar ppmCO2 ETec_broker
-    snprintf(mensaje, 20, "%.2f ppmCO2", mqData.ppmCO2);
-    client.publish(TOPIC_MQ_PPMCO2, mensaje);
 
-    // Publicar velocidad del Viento ETec_broker
-    snprintf(mensaje, 20, "Proximamente");
-    client.publish(TOPIC_VIENTO_VELOCIDAD, mensaje);
-    // Publicar dirección del viento ETec_broker
-    snprintf(mensaje, 20, "Proximamente");
-    client.publish(TOPIC_VIENTO_DIRECCION, mensaje);
+    // Leer la respuesta del servidor
+    while (client.connected()) {
+      String line = client.readStringUntil('\n');
+      if (line == "\r") {
+        Serial.println("Cuerpo de la respuesta:");
+        break;
+      }
+    }
 
-    // Publicar lluvia ETec_broker
-    snprintf(mensaje, 20, "Proximamente");
-    client.publish(TOPIC_YL_LLUVIA, mensaje);
-  }
-  else
-  {
-    //**************************Envio de datos a servidor local de Mario
-    // Publicar datos del BMP180
-    snprintf(mensaje, 75,
-             "estado:OK temperatura:%.2f presAbs:%.2f presNivlMar:%.2f altit:%.2f",
-             // bmpData.estado,
-             bmpData.temperatura,
-             bmpData.presionAbsoluta,
-             bmpData.presionAlNivelDelMar,
-             bmpData.altitud);
-    client.publish(senBMP180, mensaje);
+    // Imprimir la respuesta del servidor
+    String response = client.readString();
+    Serial.println(response);
 
-    // Publicar datos del BH1750
-    snprintf(mensaje, 20, "Lux:%.2f", bh1750Data);
-    client.publish(senBH1750, mensaje);
-
-    // Publicar datos del DHT11
-    snprintf(mensaje, 40, "hum:%.2f temp:%.2f sensacionTerm:%.2f",
-             // dhtData.estado,
-             dhtData.humedadRelativa,
-             dhtData.temperatura,
-             dhtData.sensacionTermica);
-    client.publish(senDHT11, mensaje);
-
-    // Publicar datos del MQ135
-    snprintf(mensaje, 75, "rzero:%.2f correctRZero:%.2f res:%.2f ppmCO2:%.2f ppmCorreg:%.2f",
-             mqData.rzero,
-             mqData.zeroCorregido,
-             mqData.resistencia,
-             mqData.ppmCO2,
-             mqData.ppmCorregidas);
-    client.publish(senMQ135, mensaje);
-  }
-
-  pantalla.mostrarDatos(
+    pantalla.enviandoDatos();
+    pantalla.mostrarDatos(
       dhtData.temperatura, dhtData.humedadRelativa, dhtData.sensacionTermica,
       bh1750Data,
       mqData.ppmCO2,
       bmpData.presionAbsoluta, bmpData.altitud, bmpData.temperatura);
+
+  } else {
+    Serial.println("Fallo al conectar al servidor HTTPS");
+    pantalla.initMQTT(false, serverName);
+  }
+
+  // Finalizar la conexión
+  client.stop();
 }
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
   String thisBoard = ARDUINO_BOARD;
   Serial.println(thisBoard);
 
-  //  Inicializar controlador de pantalla
+  // Inicializar controlador de pantalla
   pantalla.init();
   pantalla.showInit();
 
-  //  Inicializar controlador de sensores
+  // Inicializar controlador de sensores
   controlador.initControlador(BMP_TYPE_280);
 
-  //  Inicializar conexión a la red
+  // Conectar a la red WiFi
   setupWifi();
-  client.setServer(broker, 1883);
-  client.setCallback(callback);
 
-  envioMQTT();
+  // Enviar los datos a través de HTTP
+  enviarDatosHTTP();
 
-  Serial.print("\n*** Entrando al modo Deep Sleep***\n");
+  // Poner en modo de sueño profundo
+  Serial.println("\n*** Entrando al modo Deep Sleep***\n");
   pantalla.deepSleep();
-
-  //****Para ESP8266****/
-  ESP.deepSleep(15*60*1000000);    // DEEP sleep 15 minutos
-  // ESP.deepSleep(5 * 1000000); // DEEP sleep de 5 segundos
+  
+  ESP.deepSleep(5 * 1000000); // 5 segundos de Deep Sleep
 }
 
-void loop()
-{
+void loop() {
+  // No es necesario hacer nada en el loop
 }
